@@ -12,7 +12,6 @@ const Home: NextPage = () => {
 		accounts,
 		connectWallet,
 		fetchNFTMetadata,
-		setCharacterNFT,
 		characterNFT,
 		isLoading,
 	} = useContext(ConnectionContext);
@@ -38,11 +37,11 @@ const Home: NextPage = () => {
 			<main className={styles.main}>
 				<h1 className={styles.title}>KH NFT</h1>
 				<p>Team up to protect the Metaverse!</p>
-				{accounts && !characterNFT ? (
-					<SelectCharacter style={{display: "flex", flexWrap: "wrap", justifyContent: "center", flexDirection: "row", alignSelf: "center"}} title={"Mint your character. Choose wisely!"} />
-				) : accounts && characterNFT ? (
+				{accounts && characterNFT ? (
 					<Arena characterNFT={characterNFT} />
-				) : (
+				) :accounts && !characterNFT ? (
+					<SelectCharacter style={{display: "flex", flexWrap: "wrap", justifyContent: "center", flexDirection: "row", alignSelf: "center"}} title={"Mint your character. Choose wisely!"} />
+				) :  (
 					<>
 						<div>
 							<img
