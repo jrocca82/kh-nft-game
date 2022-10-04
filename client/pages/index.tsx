@@ -4,9 +4,18 @@ import { useContext, useEffect, useState } from "react";
 import { ConnectionContext } from "../contexts/Wallet";
 import styles from "../styles/Home.module.css";
 import SelectCharacter from "../components/SelectCharacter";
+import Arena from "../components/Arena";
+import LoadingIndicator from "../components/LoadingIndication";
 
 const Home: NextPage = () => {
-	const { accounts, connectWallet, fetchNFTMetadata, setCharacterNFT } = useContext(ConnectionContext);
+	const {
+		accounts,
+		connectWallet,
+		fetchNFTMetadata,
+		setCharacterNFT,
+		characterNFT,
+		isLoading,
+	} = useContext(ConnectionContext);
 
 	useEffect(() => {
 		if (accounts) {
@@ -14,6 +23,10 @@ const Home: NextPage = () => {
 			fetchNFTMetadata(accounts[0]);
 		}
 	}, [accounts]);
+	
+	if (isLoading) {
+		return <LoadingIndicator />;
+	}
 
 	return (
 		<div className={styles.container}>
@@ -25,20 +38,22 @@ const Home: NextPage = () => {
 			<main className={styles.main}>
 				<h1 className={styles.title}>KH NFT</h1>
 				<p>Team up to protect the Metaverse!</p>
-				<div >
-					<img
-						src="https://media4.giphy.com/media/cI7heYvqlKSQM/giphy.gif"
-						alt="Monty Python Gif"
-					/>
-				</div>
-				{accounts ? (
-					<SelectCharacter setCharacterNFT={setCharacterNFT} />
+				{accounts && !characterNFT ? (
+					<SelectCharacter style={{display: "flex", flexWrap: "wrap", justifyContent: "center", flexDirection: "row", alignSelf: "center"}} title={"Mint your character. Choose wisely!"} />
+				) : accounts && characterNFT ? (
+					<Arena characterNFT={characterNFT} />
 				) : (
-					<button
-						onClick={connectWallet}
-					>
-						Connect Wallet To Get Started
-					</button>
+					<>
+						<div>
+							<img
+								src="https://media4.giphy.com/media/cI7heYvqlKSQM/giphy.gif"
+								alt="Monty Python Gif"
+							/>
+						</div>
+						<button onClick={connectWallet}>
+							Connect Wallet To Get Started
+						</button>
+					</>
 				)}
 			</main>
 		</div>

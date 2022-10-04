@@ -14,7 +14,10 @@ interface IConnectionContext {
 	contract: ethers.Contract | undefined;
 	connectWallet: () => Promise<void>;
 	disconnectWallet: () => void;
-    setCharacterNFT: React.Dispatch<React.SetStateAction<CharacterData | undefined>>;
+	characterNFT: CharacterData | undefined;
+	setCharacterNFT: React.Dispatch<
+		React.SetStateAction<CharacterData | undefined>
+	>;
 	onCharacterMint: (
 		sender: string,
 		tokenId: number,
@@ -22,6 +25,7 @@ interface IConnectionContext {
 	) => Promise<void>;
 	fetchNFTMetadata: (account: string) => Promise<void>;
 	accounts: string[] | undefined;
+	isLoading: boolean;
 }
 
 export const ConnectionContext = createContext({} as IConnectionContext);
@@ -39,6 +43,7 @@ export const ConnectionContextProvider = ({
 	const [characterNFT, setCharacterNFT] = useState<CharacterData>();
 	const [network, setNetwork] = useState<ethers.providers.Network>();
 	const [contract, setContract] = useState<ethers.Contract>();
+	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
 		if (network) {
@@ -47,11 +52,13 @@ export const ConnectionContextProvider = ({
 	}, [network]);
 
 	const checkNetwork = useCallback((chainId: number) => {
+		setIsLoading(true)
 		const expectedChainId = 5;
 
 		if (chainId !== expectedChainId) {
 			alert("Please connect to Goerli!");
 		}
+		setIsLoading(false)
 	}, []);
 
 	const transformCharacterData = (characterData: CharacterData) => {
@@ -69,6 +76,7 @@ export const ConnectionContextProvider = ({
 		tokenId: number,
 		characterIndex: number
 	) => {
+		setIsLoading(true)
 		console.log(
 			`CharacterNFTMinted - sender: ${sender} tokenId: ${tokenId} characterIndex: ${characterIndex}`
 		);
@@ -78,9 +86,11 @@ export const ConnectionContextProvider = ({
 			console.log("CharacterNFT: ", characterNFT);
 			setCharacterNFT(transformCharacterData(characterNFT));
 		}
+		setIsLoading(false)
 	};
 
 	const fetchNFTMetadata = async (account: string) => {
+		setIsLoading(true);
 		console.log("Checking for Character NFT on address:", account);
 
 		const txn = (await contract?.checkIfUserHasNFT()) as CharacterData;
@@ -90,9 +100,11 @@ export const ConnectionContextProvider = ({
 		} else {
 			console.log("No character NFT found");
 		}
+		setIsLoading(false);
 	};
 
 	const connectWallet = useCallback(async () => {
+		setIsLoading(true);
 		//@ts-ignore
 		const provider = new ethers.providers.Web3Provider(window.ethereum);
 		setEthersProvider(provider);
@@ -114,6 +126,7 @@ export const ConnectionContextProvider = ({
 		await provider.send("eth_requestAccounts", []);
 		const accounts = await provider.listAccounts();
 		setAccounts(accounts);
+		setIsLoading(false);
 	}, []);
 
 	// set states to initial setting when user disconnect from wallet / auth0
@@ -129,9 +142,11 @@ export const ConnectionContextProvider = ({
 				connectWallet,
 				disconnectWallet,
 				contract,
-                onCharacterMint,
-                fetchNFTMetadata,
-                setCharacterNFT
+				onCharacterMint,
+				fetchNFTMetadata,
+				setCharacterNFT,
+				characterNFT,
+				isLoading,
 			}}
 		>
 			{children}

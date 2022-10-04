@@ -4,10 +4,11 @@ import { CharacterData, transformCharacterData } from "../constants/contract";
 import { ConnectionContext } from "../contexts/Wallet";
 
 type SelectCharacterProps = {
-	setCharacterNFT: React.Dispatch<React.SetStateAction<CharacterData | undefined>>
+	title: string;
+	style: Object;
 };
 
-const SelectCharacter = ({ setCharacterNFT }: SelectCharacterProps) => {
+const SelectCharacter = ({title, style}: SelectCharacterProps) => {
 	const { contract, onCharacterMint } = useContext(ConnectionContext);
 	const [characters, setCharacters] = useState<CharacterData[]>();
 
@@ -53,15 +54,15 @@ const SelectCharacter = ({ setCharacterNFT }: SelectCharacterProps) => {
 	}, [contract]);
 
 	return (
-		<div style={{display: "flex", flexWrap: "wrap", justifyContent: "center"}}>
-			<h2 style={{width: "100%", textAlign: "center"}}>Mint Your Hero. Choose wisely.</h2>
+		<div style={style}>
+			<h2 style={{width: "100%", textAlign: "center"}}>{title}</h2>
 			{characters && characters.length > 0 ? (
 				characters.map((character, index) => (
 					<div key={character.name} style={{display: "flex", flexDirection: "column", justifyContent: "space-between", marginRight: "20px", marginLeft: "20px"}}>
 						<div>
 							<p>{character.name}</p>
 						</div>
-						<img src={character.imageURI} alt={character.name} />
+						<img src={character.imageURI} alt={character.name} style={{objectFit: "contain"}}/>
 						<button
 							type="button"
 							style={{marginTop: "10px"}}
@@ -70,7 +71,7 @@ const SelectCharacter = ({ setCharacterNFT }: SelectCharacterProps) => {
 					</div>
 				))
 			) : (
-				<h2>Mint Your Hero. Choose wisely.</h2>
+				null
 			)}
 		</div>
 	);
